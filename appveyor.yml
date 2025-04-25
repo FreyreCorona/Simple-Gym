@@ -1,5 +1,8 @@
 image: Visual Studio 2022
-platform: x64
+platform: 
+    - x64
+exclude:
+    - platform: x86
 environment:
     matrix:
     - PYTHON: "C:\\Python312-x64"
