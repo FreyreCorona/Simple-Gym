@@ -3,7 +3,7 @@ platform:
     - x64
 environment:
     matrix:
-    - PYTHON: "C:\\Python312-x64"
+    - PYTHON: "C:\Python313-x64"
 install :
    - python -m pip install --upgrade pip setuptools wheel Cython numpy
    - python -m pip install pandas
