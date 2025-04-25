@@ -4,11 +4,12 @@ platform:
 environment:
     matrix:
     - PYTHON: "C:\\Python313-x64"
-install :
-   - "%PYTHON%\\python.exe -m pip install --upgrade pip setuptools wheel Cython numpy"
-   - "%PYTHON%\\python.exe -m pip install pandas"
-   - "%PYTHON%\\python.exe -m pip install pyinstaller pillow flet"
-   - "%PYTHON%\\python.exe - m pip install -r requirements.txt > pip.log 2>&1"
+install:
+  - "%PYTHON%\\python.exe -m pip install --upgrade pip virtualenv"
+  - "%PYTHON%\\python.exe -m virtualenv venv"
+  - "venv\\Scripts\\activate"
+  - "pip install pyinstaller pillow flet"
+  - "pip install -r requirements.txt"
 build_script: 
     - flet pack ./src/main.py	--n "Simple Gym" -i ./assets/icon.jpg --product-name "Simple Gym" --product-version "1.0.0" --file-description "A Simple gym management app"
 artifacts: 
