@@ -2,7 +2,7 @@ image: Visual Studio 2022
 platform: x64
 environment:
     matrix:
-    - PYTHON_VERSION: "3.14.2x64"
+    - PYTHON: "C:\\Python312-x64"
 install :
    - python -m pip install --upgrade pip setuptools wheel Cython numpy
    - python -m pip install pandas
