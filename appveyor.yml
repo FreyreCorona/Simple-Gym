@@ -2,8 +2,7 @@ image: Visual Studio 2022
 environment:
    python: 3.13.2
 install :
-   - python -m pip install --upgrade pip setuptools wheel
-   - pip install pandas
+   - pip install numpy pandas
    - pip install pyinstaller pillow flet
    - pip install -r requirements.txt
 build_script: 
