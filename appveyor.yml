@@ -1,9 +1,13 @@
 image: Visual Studio 2022
-python: 3.13.2
-install : - ps: update-pip 
-          - pip install pyinstaller pillow flet
-          - pip install -r requirements.txt
-build_script: - flet pack ./src/main.py	--n "Simple Gym" -i ./assets/icon.jpg --product-name "Simple Gym" --product-version "1.0.0" --file-description "A Simple gym management app" -y
-artifacts: - path dist\*
+environment:
+   python: 3.13
+install : 
+   - ps: update-pip 
+   - pip install pyinstaller pillow flet
+   - pip install -r requirements.txt
+build_script: 
+    - flet pack ./src/main.py	--n "Simple Gym" -i ./assets/icon.jpg --product-name "Simple Gym" --product-version "1.0.0" --file-description "A Simple gym management app" -y
+artifacts: 
+   - path: dist\*
 
 test: off
