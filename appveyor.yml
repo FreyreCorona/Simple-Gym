@@ -2,6 +2,8 @@ image: Visual Studio 2022
 environment:
    python: 3.13.2
 install :
+   - python -m venv .venv
+   - .venv\Scripts\Activate
    - python -m pip install --upgrade pip setuptools wheel Cython numpy
    - python - m pip install pandas
    - python -m pip install pyinstaller pillow flet
