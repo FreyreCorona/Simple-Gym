@@ -117,7 +117,7 @@ def active_application(KEY):
 def regist_client(name,number,email,start_date,amount):
     '''Registra clientes en la base de datos'''
     try:
-        date = parse(start_date).date()
+        date = parse(start_date,dayfirts=True).date()
         end_date = date + timedelta(days=30)
         payment_status= 'Pago' if datetime.now().date() <= end_date else 'Vencido'
 
