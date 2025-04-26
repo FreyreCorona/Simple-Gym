@@ -380,7 +380,7 @@ def main(page: ft.Page):
         open_payment_modal(id)
         load_data()
     def open_payment_modal(id):
-        client = show_client_by_id(id)[0]
+        client = show_client_by_id(id)
         amount_input =ft.TextField(label='Quantidade',width=200, value=config['default_payment'],prefix_text='R$')
         date_input =ft.TextField(label='Data',hint_text='DD/MM/YY',width=200)
         modal = ft.AlertDialog(modal=True, content=ft.Column(spacing=20,controls=[
