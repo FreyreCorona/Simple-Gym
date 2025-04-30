@@ -13,7 +13,8 @@ def db_initialize():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS  clients(
             ID INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
+            name TEXT,
+            cpf TEXT, 
             number INTEGER,
             email TEXT,
             start_date DATE,
@@ -114,7 +115,7 @@ def active_application(KEY):
         return True
     con.close()
     return False
-def regist_client(name,number,email,start_date,amount):
+def regist_client(name,number,cpf,email,start_date,amount):
     '''Registra clientes en la base de datos'''
     try:
         date = parse(start_date,dayfirst=True).date()
@@ -124,9 +125,9 @@ def regist_client(name,number,email,start_date,amount):
         con = connect_db()
         cursor = con.cursor()
         cursor.execute('''
-            INSERT INTO clients(name,number,email,start_date,end_date,amount,payment_status)
-            VALUES (?,?,?,?,?,?,?)''',
-            (name,number,email,date,end_date,amount,payment_status)
+            INSERT INTO clients(name,number,cpf,email,start_date,end_date,amount,payment_status)
+            VALUES (?,?,?,?,?,?,?,?)''',
+            (name,number,cpf,email,date,end_date,amount,payment_status)
         )
         con.commit()
         con.close()
@@ -142,7 +143,7 @@ def regist_payment(client_id,payment_date,amount,payment_status):
         VALUES (?,?,?,?)''',(client_id,payment_date,amount,payment_status))
     con.commit()
     con.close()
-def edit_client(ID,name,number,email,start_date,amount):
+def edit_client(ID,name,number,cpf,email,start_date,amount):
     try:
         date = parse(start_date).date()
         end_date = date + timedelta(days=30)
@@ -151,9 +152,9 @@ def edit_client(ID,name,number,email,start_date,amount):
         cursor = con.cursor()
         cursor.execute('''
         UPDATE clients
-        SET name = ?,number = ?, email = ?, start_date = ?, end_date = ?,amount = ?,payment_status = ?
+        SET name = ?,number = ?,cpf = ? ,email = ?, start_date = ?, end_date = ?,amount = ?,payment_status = ?
         WHERE ID = ?''',
-        (name,number,email,start_date,end_date,amount,payment_status,ID))
+        (name,number,cpf,email,start_date,end_date,amount,payment_status,ID))
         con.commit()
         con.close()
     except ValueError:
@@ -221,7 +222,7 @@ def client_exist(id):
 def search_db(filter):
     con = connect_db()
     cursor = con.cursor()
-    cursor.execute('SELECT * FROM clients WHERE name LIKE ? OR number LIKE ? OR email LIKE ?',(f'%{filter}%',f'%{filter}%',f'%{filter}%'))
+    cursor.execute('SELECT * FROM clients WHERE name LIKE ? OR number LIKE ? OR cpf LIKE ? OR email LIKE ?',(f'%{filter}%',f'%{filter}%',f'%{filter}%',f'%{filter}%'))
     result = cursor.fetchall()
     con.close()
     return result

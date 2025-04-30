@@ -257,7 +257,7 @@ def main(page: ft.Page):
         html = f"""<div>
         <div>
             <p>Prezado(a) {client[1]},</p>
-            <p>Este é um breve lembrete de que sua mensalidade referente ao mês {parse(client[4]).month} vencerá no dia {parse(client[4]).day}.</p>
+            <p>Este é um breve lembrete de que sua mensalidade referente ao mês {parse(client[5]).month} vencerá no dia {parse(client[5]).day}.</p>
             <p>Mantenha seus treinos em dia! Para sua comodidade, você pode realizar o pagamento através de:</p>
         </div>
         <ul>
@@ -271,12 +271,12 @@ def main(page: ft.Page):
         <p>{str(bussines_name.value)}</p>
     </div>"""
         
-        if client[7] == "Vencido":
+        if client[8] == "Vencido":
             subject = f"Atenção! Sua mensalidade da academia {str(bussines_name.value)} está vencida!"
             html = f"""<div>
         <div>
             <p>Prezado(a) {client[1]},</p>
-            <p>Informamos que sua mensalidade referente ao mês {parse(client[4]).month} venceu no dia {parse(client[4]).day}.</p>
+            <p>Informamos que sua mensalidade referente ao mês {parse(client[5]).month} venceu no dia {parse(client[5]).day}.</p>
             <p>Para evitar a suspensão de seus serviços e garantir a continuidade dos seus treinos, solicitamos que realize o pagamento o mais breve possível.</p>
         </div>
         <p>Você pode efetuar o pagamento através de:</p>
@@ -293,7 +293,7 @@ def main(page: ft.Page):
         
         r = resend.Emails.send({
             "from": f"{str(bussines_name.value)}@resend.dev",
-            "to": str(client[3]),
+            "to": str(client[4]),
             "subject": subject,
             "html": html
             })
@@ -366,7 +366,8 @@ def main(page: ft.Page):
                 ft.DataCell(ft.Text(str(client[4]))),
                 ft.DataCell(ft.Text(str(client[5]))),
                 ft.DataCell(ft.Text(str(client[6]))),
-                ft.DataCell(ft.Container(border_radius=10,bgcolor='RED' if str(client[7]) == 'Vencido' else 'GREEN',content=ft.Text(' '+str(client[7]+' '),color='WHITE'))),
+                ft.DataCell(ft.Text(str(client[7]))),
+                ft.DataCell(ft.Container(border_radius=10,bgcolor='RED' if str(client[8]) == 'Vencido' else 'GREEN',content=ft.Text(' '+str(client[8]+' '),color='WHITE'))),
                 ft.DataCell(ft.Row(spacing=0,controls=[
                     ft.IconButton(icon=ft.Icons.EDIT,tooltip='Editar',icon_color=ft.Colors.YELLOW,on_click=lambda e,id=client[0]: edit_client_handler(id)),
                     ft.IconButton(icon=ft.Icons.DELETE,tooltip='Apagar',icon_color=ft.Colors.RED,on_click=lambda e, id=client[0]: del_client_handler(id))])),
@@ -392,7 +393,7 @@ def main(page: ft.Page):
             ft.Column(height=200,scroll=ft.ScrollMode.ALWAYS,controls=[ft.DataTable(
                 columns=[
                     ft.DataColumn(ft.Text('Data')),
-                    ft.DataColumn(ft.Text('Quantidade')),
+                    ft.DataColumn(ft.Text('Valor')),
                     ft.DataColumn(ft.Text('Estado'))
                 ],
                 rows=[
@@ -426,9 +427,10 @@ def main(page: ft.Page):
         id_input.value = str(client[0])
         nome_input.value = str(client[1])
         number_input.value = str(client[2])
-        email_input.value = str(client[3])
-        date_input.value = str(parse(str(client[4]),dayfirst=True).date())
-        amount_input.value = str(client[6])
+        cpf_input.value = str(client[3])
+        email_input.value = str(client[4])
+        date_input.value = str(parse(str(client[5]),dayfirst=True).date())
+        amount_input.value = str(client[7])
         #logica para editar el usuario
         page.update()
     def del_client_handler(id):
@@ -448,7 +450,8 @@ def main(page: ft.Page):
                 ft.DataCell(ft.Text(str(client[4]))),
                 ft.DataCell(ft.Text(str(client[5]))),
                 ft.DataCell(ft.Text(str(client[6]))),
-                ft.DataCell(ft.Container(border_radius=10,bgcolor='RED' if str(client[7]) == 'Vencido' else 'GREEN',content=ft.Text(' '+str(client[7]+' '),color='WHITE'))),
+                ft.DataCell(ft.Text(str(client[7]))),
+                ft.DataCell(ft.Container(border_radius=10,bgcolor='RED' if str(client[8]) == 'Vencido' else 'GREEN',content=ft.Text(' '+str(client[8]+' '),color='WHITE'))),
                 ft.DataCell(ft.Row(spacing=0,controls=[
                     ft.IconButton(icon=ft.Icons.EDIT,tooltip='Editar',icon_color=ft.Colors.YELLOW,on_click=lambda e,id=client[0]: edit_client_handler(id)),
                     ft.IconButton(icon=ft.Icons.DELETE,tooltip='Apagar',icon_color=ft.Colors.RED,on_click=lambda e, id=client[0]: del_client_handler(id))
@@ -458,19 +461,20 @@ def main(page: ft.Page):
         page.update()
     def register_button_clicked(e):
         snack = None
-        if any(not input.value.strip() for input in [nome_input,number_input,email_input,date_input,amount_input]):
+        if any(not input.value.strip() for input in [nome_input,number_input,cpf_input,email_input,date_input,amount_input]):
             snack = ft.SnackBar(content=ft.Text('Todos os campos deben ser preenchidos para poder guardar o cliente.',color=ft.Colors.WHITE),bgcolor=ft.Colors.RED)
         else:
             if client_exist(id_input.value):
-                edit_client(id_input.value,nome_input.value,number_input.value,email_input.value,date_input.value,amount_input.value)
+                edit_client(id_input.value,nome_input.value,number_input.value,cpf_input.value,email_input.value,date_input.value,amount_input.value)
                 snack = ft.SnackBar(content=ft.Text('Se editou o cliente corretamente.',color=ft.Colors.BLACK),bgcolor=ft.Colors.YELLOW)
             else:
-                regist_client(nome_input.value,number_input.value,email_input.value,date_input.value,amount_input.value)
+                regist_client(nome_input.value,number_input.value,cpf_input.value,email_input.value,date_input.value,amount_input.value)
                 snack = ft.SnackBar(content=ft.Text('Se cadastrou o cliente corretamente.',color=ft.Colors.WHITE),bgcolor=ft.Colors.GREEN)
 
             id_input.value =''
             nome_input.value=''
             number_input.value=''
+            cpf_input.value=''
             email_input.value =''
             date_input.value =''
             amount_input.value = ''
@@ -484,10 +488,11 @@ def main(page: ft.Page):
                 ft.DataColumn(ft.Text('ID'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
                 ft.DataColumn(ft.Text('Nome'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
                 ft.DataColumn(ft.Text('Numero'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
+                ft.DataColumn(ft.Text('CPF'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
                 ft.DataColumn(ft.Text('Email'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
-                ft.DataColumn(ft.Text('Data de começo'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
+                ft.DataColumn(ft.Text('Data de inicio'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
                 ft.DataColumn(ft.Text('Data de vencimento'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
-                ft.DataColumn(ft.Text('Quantidade paga'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
+                ft.DataColumn(ft.Text('Valor da mensalidade'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
                 ft.DataColumn(ft.Text('Estado'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
                 ft.DataColumn(ft.Text('Ações'),heading_row_alignment=ft.MainAxisAlignment.CENTER),
                 ft.DataColumn(ft.Text('Pagamentos'),heading_row_alignment=ft.MainAxisAlignment.CENTER)
@@ -495,9 +500,10 @@ def main(page: ft.Page):
     id_input = ft.TextField(visible=False)
     nome_input= ft.TextField(label='Nome',width=150,height=40,text_style=ft.TextStyle(size=14))
     number_input= ft.TextField(label='Numero',width=150,height=40,text_style=ft.TextStyle(size=14))
+    cpf_input= ft.TextField(label='CPF',width=150,height=40,text_style=ft.TextStyle(size=14))
     email_input= ft.TextField(label='Email',width=150,height=40,text_style=ft.TextStyle(size=14))
-    date_input= ft.TextField(label='Data de começo',width=150,height=40,hint_text='DD/MM/YY',text_style=ft.TextStyle(size=14))
-    amount_input = ft.TextField(label='Quantidade paga',width=150,height=40,text_style=ft.TextStyle(size=14))
+    date_input= ft.TextField(label='Data de inicio',width=150,height=40,hint_text='DD/MM/YY',text_style=ft.TextStyle(size=14))
+    amount_input = ft.TextField(label='Valor da mensalidade',width=150,height=40,text_style=ft.TextStyle(size=14))
     search_input =ft.TextField(height=40,text_style=ft.TextStyle(size=14),label='Buscar',on_change=search)
     responsive_column =ft.Column(scroll=ft.ScrollMode.ALWAYS,controls=[clientes])
     responsive_row =ft.Row(spacing=0,scroll=ft.ScrollMode.ALWAYS,controls=[responsive_column])
@@ -507,7 +513,8 @@ def main(page: ft.Page):
     clients_view = ft.Column(spacing=10, controls=[
         ft.Row(alignment=ft.MainAxisAlignment.CENTER, controls=[ft.Text("Clientes", size=24, weight="bold", color=ft.Colors.BLUE)]),
         ft.Row(wrap=True, controls=[search_input]),
-        ft.Row(wrap=True, controls=[id_input, nome_input, number_input, email_input, date_input, amount_input, ft.ElevatedButton(text='Salvar', color=ft.Colors.WHITE, bgcolor=ft.Colors.GREEN, on_click=register_button_clicked)]),
+        ft.Text("Cadastrar clientes",size=14,weight="bold",color=ft.Colors.BLUE),
+        ft.Row(wrap=True, controls=[id_input, nome_input, number_input,cpf_input, email_input, date_input, amount_input, ft.ElevatedButton(text='Salvar', color=ft.Colors.WHITE, bgcolor=ft.Colors.GREEN, on_click=register_button_clicked)]),
         ft.Row(controls=[back_btn, next_btn,ft.Container(expand=True,height=1),notifications_btn,ft.Container(width=55,height=1)]),
         responsive_row
     ])
