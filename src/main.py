@@ -1,10 +1,10 @@
 import flet as ft
 from logic.dbManager import *
-from dateutil.parser import parse
 from logic.config import *
+from logic.notification_helper import *
+from dateutil.parser import parse
 import pandas as pd
-import resend
-
+import asyncio
 def main(page: ft.Page):
     # Cargar configuración y la base de datos
     config = load_config()
@@ -31,11 +31,10 @@ def main(page: ft.Page):
         income_chart.height = (page.window.height - 200) / 2
         #client view
         search_input.width = page.window.width - 300
-        responsive_row.width = page.window.width - 50
-        responsive_column.height = page.window.height - 200
-        clientes.width = page.window.width - 200
-        clientes.height = page.window.height - 300
-
+        clientes.width = page.window.width -200
+        #clientes.height = page.window.height - 250
+        responsive_row.width = page.window.width -200
+        responsive_column.height = page.window.height -260
         #settings view
         settings_view.height = page.window.height - 100
         page.update()
@@ -249,55 +248,11 @@ def main(page: ft.Page):
     showed_clients = 0
     quantity = 50
     total_in_db = client_count()
-
-    def send_notification(id):
-        resend.api_key = "re_2P8tNB5m_G9aad78UJT281bE1tuF8FVJB"
-        client = show_client_by_id(id)
-        subject = f"Lembrete: Sua mensalidade da academia {str(bussines_name.value)} vence em breve!"
-        html = f"""<div>
-        <div>
-            <p>Prezado(a) {client[1]},</p>
-            <p>Este é um breve lembrete de que sua mensalidade referente ao mês {parse(client[5]).month} vencerá no dia {parse(client[5]).day}.</p>
-            <p>Mantenha seus treinos em dia! Para sua comodidade, você pode realizar o pagamento através de:</p>
-        </div>
-        <ul>
-            <li>Transferência bancária PIX: <strong>{str(pix_key.value)}</strong></li>
-            <li>Pagamento em especie: Diretamente no establecimento.</li>
-        </ul>
-        <p>Caso já tenha efetuado o pagamento, por favor, desconsidere este lembrete.</p>
-        <p>Se precisar de alguma ajuda ou tiver alguma dúvida, não hesite em nos contatar.</p>
-        <p>Agradecemos por fazer parte da nossa comunidade!</p>
-        <p>Atenciosamente,</p>
-        <p>{str(bussines_name.value)}</p>
-    </div>"""
-        
-        if client[8] == "Vencido":
-            subject = f"Atenção! Sua mensalidade da academia {str(bussines_name.value)} está vencida!"
-            html = f"""<div>
-        <div>
-            <p>Prezado(a) {client[1]},</p>
-            <p>Informamos que sua mensalidade referente ao mês {parse(client[5]).month} venceu no dia {parse(client[5]).day}.</p>
-            <p>Para evitar a suspensão de seus serviços e garantir a continuidade dos seus treinos, solicitamos que realize o pagamento o mais breve possível.</p>
-        </div>
-        <p>Você pode efetuar o pagamento através de:</p>
-        <ul>
-            <li>Transferência bancária PIX: <strong>{str(pix_key.value)}</strong></li>
-            <li>Pagamento em especie: Diretamente no establecimento.</li>
-        </ul>
-        <p>Caso o pagamento já tenha sido efetuado, por favor, desconsidere esta mensagem.</p>
-        <p>Em caso de dúvidas, entre em contato conosco.</p>
-        <p>Agradecemos a sua compreensão e colaboração.</p>
-        <p>Atenciosamente,</p>
-        <p>{str(bussines_name.value)}</p>
-    </div>"""
-        
-        r = resend.Emails.send({
-            "from": f"{str(bussines_name.value)}@resend.dev",
-            "to": str(client[4]),
-            "subject": subject,
-            "html": html
-            })
-
+    async def notification_handler(id):
+        if notification_method.value == 'email':  #config['notification_settings']['notification_method'] == 'email':
+            email_notification(id)
+        elif notification_method.value == 'whatsapp':   #config['notification_settings']['notification_method'] == 'whatsapp':
+            await whatsapp_notification(id)
     def check_notifications():
         notifications = []
 
@@ -313,7 +268,7 @@ def main(page: ft.Page):
                                 ft.Icon(ft.Icons.WARNING, color=ft.Colors.AMBER, size=24),
                                 ft.Text(f"Cliente {client[1]} - Mensalidade vence em {days_left} dias", size=16),
                                 ft.Container(expand=True,height=1),
-                                ft.IconButton(icon=ft.Icons.SEND, tooltip="Enviar notificação", icon_color=ft.Colors.BLUE, on_click=lambda e, id=client[0]: send_notification(id)),
+                                ft.IconButton(icon=ft.Icons.SEND, tooltip="Enviar notificação", icon_color=ft.Colors.BLUE, on_click=lambda e, id=client[0]: asyncio.run(notification_handler(id))),
                             ],
                             spacing=10,
                         )
@@ -330,7 +285,7 @@ def main(page: ft.Page):
                             ft.Icon(ft.Icons.ERROR, color=ft.Colors.RED, size=24),
                             ft.Text(f"Cliente {client[1]} - Mensalidade vencida há {days_overdue} dias", size=16),
                             ft.Container(expand=True,height=1),
-                            ft.IconButton(icon=ft.Icons.SEND, tooltip="Enviar notificação", icon_color=ft.Colors.BLUE, on_click=lambda e, id=client[0]: send_notification(id)),
+                            ft.IconButton(icon=ft.Icons.SEND, tooltip="Enviar notificação", icon_color=ft.Colors.BLUE, on_click=lambda e, id=client[0]: asyncio.run(notification_handler(id))),
                         ],
                         spacing=10,
                     )
@@ -505,8 +460,10 @@ def main(page: ft.Page):
     date_input= ft.TextField(label='Data de inicio',width=150,height=40,hint_text='DD/MM/YY',text_style=ft.TextStyle(size=14))
     amount_input = ft.TextField(label='Valor da mensalidade',width=150,height=40,text_style=ft.TextStyle(size=14))
     search_input =ft.TextField(height=40,text_style=ft.TextStyle(size=14),label='Buscar',on_change=search)
+
     responsive_column =ft.Column(scroll=ft.ScrollMode.ALWAYS,controls=[clientes])
     responsive_row =ft.Row(spacing=0,scroll=ft.ScrollMode.ALWAYS,controls=[responsive_column])
+    
     back_btn =ft.ElevatedButton(text='<',on_click=pagination_handler,disabled=True)
     next_btn =ft.ElevatedButton(text='>',on_click=pagination_handler)
     notifications_btn = ft.IconButton(icon_size=24,icon=ft.Icons.NOTIFICATIONS,icon_color=ft.Colors.BLUE,on_click=lambda e: check_notifications())
@@ -531,6 +488,7 @@ def main(page: ft.Page):
                 regist_client(
                     name=row['Nome'],
                     number=row['Numero'],
+                    cpf=row['cpf'],
                     email=row['Email'],
                     start_date=row['Data_Inicio'],
                     amount=row['Quantidade']
@@ -554,7 +512,10 @@ def main(page: ft.Page):
             "language": language_dd.value,
             "notification_settings": {
                 "payment_expiration": notifications_expiration.value,
-                "notification_days": int(notification_days.value)
+                "notification_days": int(notification_days.value),
+                "notification_method": notification_method.value,
+                "due_msg":str(due_msg),
+                "overdue_msg":str(overdue_msg)
             },
             "bussines_name":str(bussines_name.value),
             "pix_key":str(pix_key.value)
@@ -586,7 +547,38 @@ def main(page: ft.Page):
     )
     notifications_expiration = ft.Switch(label="Notificar vencimento",value=config["notification_settings"]["payment_expiration"],on_change=lambda e: save_settings(e))
     notification_days = ft.TextField(label="Dias de antecedência a notificar",value=str(config["notification_settings"]["notification_days"]),width=200,on_change=lambda e: save_settings(e))
+    notification_method = ft.Dropdown(value=config['notification_settings']['notification_method'],label='Metodo de notificação',width=200,
+        options=[
+            ft.dropdown.Option('email','email'),
+            ft.dropdown.Option('whatsapp','whatsapp(Beta)')
+        ],
+        on_change=lambda e: save_settings(e))
+    due_msg = config['notification_settings']['due_msg']
+    overdue_msg = config['notification_settings']['overdue_msg']
+    def edit_text_modal(e):
+        nonlocal due_msg,overdue_msg
+        def switch_value(e):
+            nonlocal due_msg,overdue_msg
+            dialog_edit.content.controls[1].value = str(overdue_msg) if e.control.value == False else str(due_msg)
+            page.update()
+        def save(e):
+            nonlocal due_msg,overdue_msg
+            if switch.value:
+                due_msg = e.control.value   
+            else:
+                overdue_msg = e.control.value
 
+        switch = ft.Switch(on_change=switch_value)
+        dialog_edit = ft.AlertDialog(modal=True,title=ft.Text('Modificar texto de notificação',size=24,weight='bold',color=ft.Colors.BLUE),content=ft.Column(width=400,height=500,controls=[
+            ft.Row(controls=[ft.Text('Pre-Vencimento'),switch,ft.Text('Vencimento')]),
+            ft.TextField(multiline=True,expand=True,value=overdue_msg,on_change=lambda e: save(e))
+        ]),
+        actions=[ft.TextButton(text="Cerrar",on_click=lambda e: page.close(dialog_edit)),
+                 ft.FilledButton(text='Salvar',bgcolor=ft.Colors.GREEN,on_click=lambda e: save_settings(e))]
+        )
+        page.open(dialog_edit)
+
+    due_btn = ft.FilledButton(text='Customizar',on_click=edit_text_modal)
     bussines_name = ft.TextField(label="Nome do Negocio",value=config["bussines_name"],width=200,on_change=lambda e: save_settings(e))
     pix_key = ft.TextField(label="Chave Pix",value=config["pix_key"],width=200,on_change=lambda e: save_settings(e))
    
@@ -596,7 +588,7 @@ def main(page: ft.Page):
             ft.Text("* Uma coluna para cada um dos seguintes encabezados (Nome,Numero,Email,Data_Inicio,Quantidade) referente a os dados dessa coluna.",size=20),
             ft.Text("Esta funcionalidade ainda esta em desenvolvimento , erros de importação podem acontecer (Salve a gym.db antes de fazer esta operação)",color=ft.Colors.RED,weight="bold",size=15)
             ]),
-            actions=[ft.TextButton(text="Ententido",on_click=lambda e: page.close(dialog_help))])      
+            actions=[ft.TextButton(text="Entendido",on_click=lambda e: page.close(dialog_help))])      
         page.open(dialog_help)
     
     def show_activation(e):
@@ -676,7 +668,9 @@ def main(page: ft.Page):
                 content=ft.Column([
                     ft.Text("Notificações", size=18, weight="bold"),
                     notifications_expiration,
-                    notification_days,                
+                    notification_days,
+                    notification_method,
+                    due_btn,
                 ]),
                 padding=20,
                 border=ft.border.all(1, ft.Colors.GREY_400),

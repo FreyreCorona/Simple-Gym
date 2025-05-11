@@ -1,4 +1,4 @@
-import sqlite3
+﻿import sqlite3
 from datetime import datetime,timedelta
 from dateutil.parser import parse
 import resend
@@ -14,8 +14,8 @@ def db_initialize():
         CREATE TABLE IF NOT EXISTS  clients(
             ID INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
-            cpf TEXT, 
             number INTEGER,
+            cpf TEXT, 
             email TEXT,
             start_date DATE,
             end_date DATE,
@@ -260,6 +260,7 @@ def get_group_of_payments(start_date,end_date):
                        ORDER BY month''',(start_date.isoformat(),end_date.isoformat()))
         data = cursor.fetchall()
         con.close()
+        print(data)
         return data
 def total_income(start_date = None):
     con = connect_db()
