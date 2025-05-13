@@ -28,4 +28,4 @@ jobs:
         uses: actions/upload-artifacts@v3
         with:
           name: FletApp-Windows
-          path: dist/main.exe
+          path: "dist/Simple gym.exe"
