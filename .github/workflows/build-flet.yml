@@ -19,11 +19,12 @@ jobs:
           python -m pip install --upgrade pip virtualenv
           python -m virtualenv venv
           venv\\Scripts\\activate
+          echo "Entorno viertual establecido correctamente"
           pip install pyinstaller pillow flet
           pip install -r requirements.txt
       - name: Pack the executable
         run: |
-          flet pack ./src/main.py	--n "Simple Gym" -i ./assets/icon.jpg --product-name "Simple Gym" --product-version "1.0.0" --file-description "A Simple gym management app"
+          python -m flet pack ./src/main.py	--n "Simple Gym" -i ./assets/icon.jpg --product-name "Simple Gym" --product-version "1.0.0" --file-description "A Simple gym management app"
       - name: Upload executable
         uses: actions/upload-artifact@v4
         with:
