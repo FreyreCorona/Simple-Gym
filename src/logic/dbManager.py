@@ -258,17 +258,16 @@ def search_payment(status,start_date = None):
     return data
 
 def get_group_of_payments(start_date,end_date): 
-        con = connect_db()
-        cursor = con.cursor()
-        cursor.execute('''SELECT strftime("%m",payment_date) AS month,
-                        SUM(amount) AS total_amount
-                       FROM payments WHERE payment_status == "Pago" AND payment_date BETWEEN ? AND ?
-                       GROUP BY month 
-                       ORDER BY month''',(start_date.isoformat(),end_date.isoformat()))
-        data = cursor.fetchall()
-        con.close()
-        print(data)
-        return data
+    con = connect_db()
+    cursor = con.cursor()
+    cursor.execute('''SELECT strftime("%m",payment_date) AS month,
+                    SUM(amount) AS total_amount
+                   FROM payments WHERE payment_status = "Pago" AND payment_date BETWEEN ? AND ?
+                   GROUP BY month 
+                   ORDER BY month''',(start_date.isoformat(),end_date.isoformat()))
+    data = cursor.fetchall()
+    con.close()
+    return data
 def total_income(start_date = None):
     con = connect_db()
     cursor = con.cursor()

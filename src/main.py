@@ -244,7 +244,7 @@ def main(page: ft.Page):
     #region CLIENT_VIEW
     actual_page = 0
     showed_clients = 0
-    quantity = 50
+    quantity = 20
     total_in_db = client_count()
     async def notification_handler(id):
         if notification_method.value == 'email':  #config['notification_settings']['notification_method'] == 'email':
@@ -362,7 +362,7 @@ def main(page: ft.Page):
         page.open(modal)
     def pagination_handler(e):
         nonlocal actual_page
-        if e.control.text == '<' and actual_page ==0:
+        if e.control.text == '<' and actual_page == 0:
             back_btn.disabled = True
         if e.control.text == '<' and actual_page > 0:
             if next_btn.disabled:
@@ -739,14 +739,30 @@ def main(page: ft.Page):
                     ft.Row(
                         controls=[
                             ft.Icon(ft.Icons.CHECK_CIRCLE, color=ft.Colors.GREEN),
-                            ft.Text("Notificações via E-mail", size=16),
+                            ft.Text("Notificações via E-mail e Whatsapp(beta)", size=16),
                         ]
                     ),
                 ],
             ),
+            ft.Text(
+                "Atualizações recentes:",
+                size=20,
+                weight="bold",
+                color=ft.Colors.BLUE,
+            ),
+            ft.Row(wrap=True,controls=[
+                ft.Column(controls=[
+                    ft.Text("Adição da notificação via whatsapp."),
+                    ft.Text("Posibilidade de customizar o message de notificação.")
+                ]),
+                ft.Column(controls=[
+                    ft.Text("Agora ao cadastar um cliente , tambem cadastra um pagamento com a mesma data e valor"),
+                    ft.Text("Correção de falhas como scrolls, tamanhos de letras e interação con a base de dados")
+                ])
+            ]),
             ft.Divider(height=20, thickness=1, color=ft.Colors.GREY_400),
             ft.Text("Desenvolvido por: Freyre Corona", size=16, color=ft.Colors.GREY_700),
-            ft.Text("Versão: 1.0.0", size=16, color=ft.Colors.GREY_700),
+            ft.Text("Versão: 1.2.0", size=16, color=ft.Colors.GREY_700),
         ],
     )
     #endregion
