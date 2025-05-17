@@ -13,6 +13,7 @@ cssutils==2.11.1
 flet==0.27.6
 flet-cli==0.27.6
 flet-desktop==0.27.6
+greenlet==3.2.1
 h11==0.14.0
 httpcore==1.0.8
 httpx==0.28.1
@@ -29,7 +30,9 @@ oauthlib==3.2.2
 packaging==24.2
 pandas==2.2.3
 pillow==11.2.1
+playwright==1.52.0
 premailer==3.10.0
+pyee==13.0.0
 Pygments==2.19.1
 pyinstaller==6.13.0
 pyinstaller-hooks-contrib==2025.3
