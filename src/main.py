@@ -195,12 +195,10 @@ def main(page: ft.Page):
                 max_y = total_amount + 100
 
         return bar_groups, labels, max_y
-    def load_dashboard_data(filter_key=1):
+    def load_dashboard_data(filter_key='1'):
         nonlocal clients_chart, income_chart
         nonlocal income_data, total_clients, active_clients, pendent_clients
-
-        start_date = datetime.now().date() - timedelta(days=30)
-        dd.value = filter_key
+        start_date = None
         match filter_key:
             case '1':
                 start_date = datetime.now().date() - timedelta(days=30)

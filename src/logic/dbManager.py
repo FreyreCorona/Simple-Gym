@@ -12,16 +12,15 @@ def db_initialize():
     cursor = con.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS  clients(
-            ID INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            number INTEGER,
-            cpf TEXT, 
-            email TEXT,
-            start_date DATE,
-            end_date DATE,
-            amount INTEGER,
-            payment_status TEXT
-                )
+        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        number INTEGER,
+        cpf TEXT, 
+        email TEXT,
+        start_date DATE,
+        end_date DATE,
+        amount INTEGER,
+        payment_status TEXT)
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS payments(
@@ -31,7 +30,7 @@ def db_initialize():
             amount INTEGER,
             payment_status TEXT,
             FOREIGN KEY (client_ID) REFERENCES clients(ID)
-                )           
+            )           
     ''')
     cursor.execute('''
         CREATE TRIGGER IF NOT EXISTS actualize_clients
@@ -41,15 +40,23 @@ def db_initialize():
         end_date = DATE(NEW.payment_date,"+30 days"),
         payment_status = NEW.payment_status
         WHERE ID = NEW.client_ID;
-        END;''')
+        END;
+    ''')
     cursor.execute('''
-                   CREATE TABLE IF NOT EXISTS trial(
-                   ID INTEGER PRIMARY KEY,
-                   first_execution DATE,
-                   last_execution DATE,
-                   end_trial DATE,
-                   is_active BOOLEAN)
-                   ''')
+        CREATE TRIGGER IF NOT EXISTS actualize_payments
+        AFTER INSERT ON clients
+        BEGIN INSERT INTO payments(client_ID,payment_date,amount,payment_status)
+        VALUES(NEW.ID,NEW.start_date,NEW.amount,NEW.payment_status);
+        END;
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS trial(
+        ID INTEGER PRIMARY KEY,
+        first_execution DATE,
+        last_execution DATE,
+        end_trial DATE,
+        is_active BOOLEAN)
+    ''')
     con.commit()
     con.close()
     #actualiza el estado de pago de los clientes
