@@ -1,12 +1,13 @@
 ﻿import sqlite3
 from datetime import datetime,timedelta
 from dateutil.parser import parse
-import resend
-from logic.config import *
 import os
+from . import notification_helper
+from . import secure
 
 def connect_db():
     return sqlite3.connect(os.getcwd() +'/resources/gym.db')
+
 def db_initialize():
     con = connect_db()
     cursor = con.cursor()
@@ -62,7 +63,6 @@ def db_initialize():
     #actualiza el estado de pago de los clientes
     change_client_status()
 
-    print('Base de datos inicializada correctamente')
 def change_client_status():
     con = connect_db()
     cursor = con.cursor()
@@ -71,6 +71,8 @@ def change_client_status():
     con.close()        
 
 def check_trial():
+
+
     con = connect_db()
     cursor = con.cursor()
 
@@ -86,13 +88,7 @@ def check_trial():
                 return True
             elif datetime.now().date() < parse(trial[2]).date(): #el sistema de base de datos fue modificado externamente
                 print("Detectado modificacion de la base de datos de manera externa")
-                conf = load_config()        
-                resend.Emails.send({
-                    "from": "Vulnerability@resend.dev",
-                    "to": "einierfreyre60@gmail.com",
-                    "subject": "La base de datos fue modificada externamente",
-                    "html": f"Modificacion por parte de {conf["bussines_name"]}"
-                })
+                notification_helper.vulnerability_detected()
                 cursor.execute('DROP TABLE clients,payment')
                 con.commit()
                 con.close()
@@ -111,14 +107,13 @@ def check_trial():
         con.commit()
         con.close()
         return True
-def active_application(KEY):
+def active_application():
     con = connect_db()
     cursor = con.cursor()
-    if KEY == "LICENCE-DJFKAL-3.13.2":
+    if secure.Read_licence():
         cursor.execute("UPDATE trial SET is_active = true WHERE ID = 1")
         con.commit()
         con.close()
-        print("Activacion exitosa")
         return True
     con.close()
     return False
@@ -311,7 +306,9 @@ def get_expired_memberships():
     
     expired = cursor.fetchall()
     con.close()
+    print(expired)
     return expired
 
 if __name__ == '__main__':
     db_initialize()
+    get_expired_memberships()

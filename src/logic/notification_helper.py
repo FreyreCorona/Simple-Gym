@@ -6,6 +6,8 @@ import logic.config
 import resend
 from dateutil.parser import parse
 
+config= logic.config.load_config()
+
 def replace_texts(client_id,text):
     config = logic.config.load_config()
     client = logic.dbManager.show_client_by_id(client_id)
@@ -18,7 +20,7 @@ def replace_texts(client_id,text):
 
 async def whatsapp_notification(id):
     client = logic.dbManager.show_client_by_id(id)
-    config = logic.config.load_config()
+    #config = logic.config.load_config()
     msg = replace_texts(id,str(config['notification_settings']['overdue_msg']))
     if client[8] == 'Vencido':
         msg = replace_texts(id,str(config['notification_settings']['due_msg']))
@@ -42,7 +44,7 @@ async def whatsapp_notification(id):
 def email_notification(id):
     resend.api_key = "re_2P8tNB5m_G9aad78UJT281bE1tuF8FVJB"
     client = logic.dbManager.show_client_by_id(id)
-    config = logic.config.load_config()
+   # config = logic.config.load_config()
     subject = f"Lembrete: Sua mensalidade da academia {str(config["bussines_name"])} vence em breve!"
     html = replace_texts(id,str(config['notification_settings']['overdue_msg']))
         
@@ -56,5 +58,13 @@ def email_notification(id):
         "subject": subject,
         "html": html
     })
+def vulnerability_detected():
+    resend.Emails.send({
+        'from': 'vulnerability@resend.dev',
+        'to': 'einierfreyre60@gmail.com',
+        'subject': 'Se encontro una vulnerabilidad',
+        'html': f'Academia {config['bussines_name']} modifico la db'
+    })
+
 
 

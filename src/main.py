@@ -39,30 +39,18 @@ def main(page: ft.Page):
         settings_view.height = page.window.height - 100
         page.update()
     page.on_resized = resized_window
-    is_trial = check_trial()
-    if is_trial:
-        page.title = page.title + " - Sem Registrar"
-    else:    
-        key_field = ft.TextField(label="Clave de activação",width=200)
-        dialog_act = ft.AlertDialog(modal=True,title=ft.Text("O periodo de prova Acabou", size=24, weight="bold", color=ft.Colors.RED),
-                                     content=ft.Column(width=300,height=300,controls=[
+    if not active_application():
+        is_trial = check_trial()
+        if is_trial:
+            page.title = page.title + " - Sem Registrar"
+        else:    
+            dialog_act = ft.AlertDialog(modal=True,title=ft.Text("O periodo de prova Acabou", size=24, weight="bold", color=ft.Colors.RED),
+                                         content=ft.Column(width=300,height=300,controls=[
                                          ft.Row(alignment=ft.MainAxisAlignment.CENTER,controls=[ft.Icon(name=ft.Icons.ALARM,size=100,color=ft.Colors.RED)]),
-                                         ft.Text("-Para continuar utilizando Simple Gym para gerenciar sua academia você precisa introducir uma clave de Ativação ",size=15),
-                                         key_field]),
-                                     actions=[ft.ElevatedButton(text="Ativar Programa",color=ft.Colors.GREEN,on_click=lambda e:activate_app(e,key_field.value))]
+                                         ft.Text("-Para continuar utilizando Simple Gym para gerenciar sua academia você precisa introducir uma clave de Ativação ",size=15)]),
                                          )
-        page.overlay.append(dialog_act)
-        def activate_app(e,KEY):
-        
-            success = active_application(KEY)
-            print(KEY)
-            print(success)
-            if not success:
-                key_field.error_text = "Clave de activação errada"
-                page.update()
-            else:
-                page.close(dialog_act)   
-        dialog_act.open = True
+            page.overlay.append(dialog_act)
+            dialog_act.open = True
 
     # Views do Navigation Rail
     #region DASHBOARD VIEW
@@ -588,26 +576,7 @@ def main(page: ft.Page):
             ]),
             actions=[ft.TextButton(text="Entendido",on_click=lambda e: page.close(dialog_help))])      
         page.open(dialog_help)
-    
-    def show_activation(e):
-        key_field =ft.TextField(label="Clave de activação",width=200)
-        dialog_act = ft.AlertDialog(modal=True,title=ft.Text("Formulario de Activação", size=24, weight="bold", color=ft.Colors.BLUE),content=ft.Column(width=300,height=200,controls=[         
-            key_field,
-            ft.FilledButton(text="Ativar",width=60,height=30,on_click=lambda e: activate_app(e,key_field.value)),
-            ]),           
-          
-            actions=[ft.TextButton(text="Ententido",on_click=lambda e: page.close(dialog_act))]) 
-        def activate_app(e,KEY):
-        
-            success = active_application(KEY)
-            print(KEY)
-            print(success)
-            if not success:
-                key_field.error_text = "Clave de activação errada"
-                page.update()           
-        page.open(dialog_act)
-    activation_btn = ft.IconButton(bgcolor=ft.Colors.GREY,icon=ft.Icons.KEY,tooltip="Activação",icon_color = ft.Colors.YELLOW,icon_size = 20, on_click=show_activation)
-   
+     
     settings_view = ft.Column(
         spacing=20,
         height=page.window.height - 100,
@@ -690,7 +659,6 @@ def main(page: ft.Page):
                 width=300
             )
             ]),
-            ft.Row(alignment=ft.MainAxisAlignment.START,controls=[activation_btn])
         ]
     )
     #endregion
