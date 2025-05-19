@@ -37,6 +37,6 @@ The main functionalities of SimpleGym are centered around the "Clients" window. 
 
 ## License
 
-Copyright (c) 2025 Einier Freyre Corona
+Bussines Source license 2025 Einier Freyre Corona
 
-All rights reserved. This software is proprietary and may only be used under a specific license agreement with the copyright holder.
+This software is proprietary and may only be used under a specific license agreement with the copyright holder.
