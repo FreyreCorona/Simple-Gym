@@ -3,8 +3,9 @@ from logic.dbManager import *
 from logic.config import *
 from logic.notification_helper import *
 from dateutil.parser import parse
-import pandas as pd
 import asyncio
+from openpyxl import load_workbook
+
 def main(page: ft.Page):
     # Cargar configuración y la base de datos
     config = load_config()
@@ -465,20 +466,27 @@ def main(page: ft.Page):
 
     #region SETTINGS VIEW
 
-    def import_excel(e, file_picker: ft.FilePicker):   
+    def import_excel(e, file_picker: ft.FilePicker):
         try:
             file_path = file_picker.result.files[0].path
-            df = pd.read_excel(file_path)
-    
-            for _, row in df.iterrows():
-                regist_client(
-                    name=row['Nome'],
-                    number=row['Numero'],
-                    cpf=row['cpf'],
-                    email=row['Email'],
-                    start_date=row['Data_Inicio'],
-                    amount=row['Quantidade']
-                )
+            ws = load_workbook(file_path).active
+        
+            for row in ws.iter_rows(min_row=2):
+                if len(row) >= 5:
+                    regist_client(
+                        name=row[0],
+                        number=row[1],
+                        cpf=row[2],
+                        email=row[3],
+                        start_date=row[4],
+                        amount=row[5]
+                    )
+                else:
+                    snack = ft.SnackBar(content=ft.Text(f"Alerta: O Arquivo deve ter pelo menos 6 colunas (ler a ajuda para mais informação"),bgcolor=ft.Colors.YELLOW)
+                    page.overlay.append(snack)
+                    snack.open = True
+ 
+
             #mensaje de confirmacion
             snack =ft.SnackBar(content=ft.Text("Dados importados com sucesso!"),bgcolor=ft.Colors.GREEN)
             page.overlay.append(snack)
@@ -570,13 +578,13 @@ def main(page: ft.Page):
    
     def show_help(e):
         dialog_help = ft.AlertDialog(modal=True,title=ft.Text("Formatação do arquivo Excel", size=24, weight="bold", color=ft.Colors.BLUE),content=ft.Column(width=400,height=500,controls=[ft.Text("Para que a importação aconteça com normalidade o arquivo Excel deve cumprir os sgtes requisitos",size=20),
-            ft.Text("* Pelo menos 5 colunas.",size=20),
-            ft.Text("* Uma coluna para cada um dos seguintes encabezados (Nome,Numero,Email,Data_Inicio,Quantidade) referente a os dados dessa coluna.",size=20),
+            ft.Text("* Pelo menos 6 colunas.",size=20),
+            ft.Text("* Uma coluna para cada um dos seguintes encabezados (Nome,Numero,CPF,Email,Data_Inicio,Quantidade) referente a os dados dessa coluna.",size=20),
             ft.Text("Esta funcionalidade ainda esta em desenvolvimento , erros de importação podem acontecer (Salve a gym.db antes de fazer esta operação)",color=ft.Colors.RED,weight="bold",size=15)
             ]),
             actions=[ft.TextButton(text="Entendido",on_click=lambda e: page.close(dialog_help))])      
         page.open(dialog_help)
-     
+        
     settings_view = ft.Column(
         spacing=20,
         height=page.window.height - 100,
@@ -588,13 +596,11 @@ def main(page: ft.Page):
             ft.Container(
                 content=ft.Column([
                     ft.Text("Importar Dados", size=18, weight="bold"),
-                    ft.Row([
+                        ft.Row([
                         ft.ElevatedButton(
                             "Importar do Excel",
                             icon=ft.Icons.FILE_UPLOAD,
-                            on_click=lambda _: file_picker.pick_files(
-                                allowed_extensions=["xlsx","xls"]
-                            )
+                                on_click=lambda _:file_picker.pick_files(allowed_extensions=['xlsx','xls'])
                             ),
                             ft.IconButton(icon=ft.Icons.HELP,tooltip="Ajuda",icon_color = ft.Colors.CYAN,icon_size = 20, on_click=show_help)
                     ])
