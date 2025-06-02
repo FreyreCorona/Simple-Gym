@@ -55,9 +55,4 @@ types-python-dateutil==2.9.0.20241206
 typing_extensions==4.13.2
 urllib3==2.4.0
 watchdog==4.0.2
-<<<<<<< HEAD
 yarg==0.1.10
-=======
-playwright==1.52.0
-openpyxl
->>>>>>> 3788a44d1b5283c00a666d21ec82c8282a31224a
