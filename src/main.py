@@ -584,7 +584,18 @@ def main(page: ft.Page):
             ]),
             actions=[ft.TextButton(text="Entendido",on_click=lambda e: page.close(dialog_help))])      
         page.open(dialog_help)
-        
+    def reset_data_clicked(e):
+        dialog = ft.AlertDialog(modal=True,title=ft.Text('Tem certeza ?',size=24,weight='bold',color=ft.Colors.BLUE),
+        actions=[ft.TextButton("Sim",on_click=lambda e:confirm(e)),ft.TextButton("Não",on_click=lambda e: page.close(dialog))]
+        )
+        def confirm(e):
+            os.remove(os.getcwd() + '/resources/gym.db')
+            snack = ft.SnackBar(bgcolor=ft.Colors.GREEN,content=ft.Text("Datos apagados com sucesso"))
+            page.overlay.append(snack)
+            page.close(dialog)
+            snack.open= True
+            page.update()
+        page.open(dialog) 
     settings_view = ft.Column(
         spacing=20,
         height=page.window.height - 100,
@@ -656,7 +667,8 @@ def main(page: ft.Page):
                 content=ft.Column([
                     ft.Text("Dados do Negocio", size=18, weight="bold"),
                     bussines_name,
-                    pix_key
+                    pix_key,
+                    ft.ElevatedButton('Resetear Dados',bgcolor=ft.Colors.RED,color=ft.Colors.WHITE,on_click=reset_data_clicked)
                 ]),
                 padding=20,
                 border=ft.border.all(1, ft.Colors.GREY_400),

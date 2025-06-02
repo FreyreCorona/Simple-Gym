@@ -7,3 +7,4 @@
 /dist
 /resources
 /auth_session
+/__pycache__
